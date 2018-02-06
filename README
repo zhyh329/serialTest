@@ -1,0 +1,6 @@
+README for CARS test software
+-----------------------------
+
+to build serTest cd into serialTest/
+and call make
+
