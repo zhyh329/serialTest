@@ -1,6 +1,21 @@
-README for CARS test software
------------------------------
+README for multi-UART test serTest
+==================================
 
-to build serTest cd into serialTest/
-and call make
+This utility forks 3 threads which in parallel send to multiple UARTS
+and receives from them.
+
+The UARTs are currently labelled and expected to be named
+/dev/ttyS4 - /dev/ttyS11 (8 UARTs).
+
+To be suitable for less UARTs defines in serialTest.c must be modified.
+
+
+Compiling serTest:
+------------------
+
+
+cd into serialTest/ and call make.
+
+
+
 

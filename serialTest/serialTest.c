@@ -186,7 +186,7 @@ static uint32 SendDataToSerial_SCOM(uint8 index, uint8 buff[],uint16 len)
 {
   int32 val = 0;
   uint32 ret = NO_ERROR;
-
+  /* ts@men: use 5ms instead 1ms, give the OS time for other tasks */
   val = SerialWritableCheck(index, 5000U);
   if(val<=0)
   {
@@ -194,7 +194,7 @@ static uint32 SendDataToSerial_SCOM(uint8 index, uint8 buff[],uint16 len)
   }
 
   val = write(gSerialCfg[index].fd,buff,len);
-  /* printf("ttyS%d wrote %d byte\n", (int)(index + UART_BASE_OFFS), (int)val);*/
+
   fsync(gSerialCfg[index].fd);
   if(val == -1)
   {
@@ -304,21 +304,10 @@ static int32 SerialWritableCheck(uint8 index, uint32 uSec)
 static void ResetSerialPort(uint8 index)
 {
   int8 str[128U]; /*the array used to store string*/
-  int8 *pStr = str;
   memset(str,0,sizeof(str));
-#if 1
   tcflush(gSerialCfg[index].fd,TCOFLUSH);
   fsync(gSerialCfg[index].fd);
   snprintf(str,128U,"Serial ttyS%u Reset!\n",index + UART_BASE_OFFS );
-#else
-  pStr+=snprintf(pStr,128U,"Serial ttyS%u Close: ",index + UART_BASE_OFFS );
-  tcflush(gSerialCfg[index].fd,TCOFLUSH);
-  fsync(gSerialCfg[index].fd);
-  close(gSerialCfg[index].fd);
-  pStr+=snprintf(pStr,128U,"done. Reopen: " );
-  InitSerialCom(&(gSerialCfg[index]));
-  pStr+=snprintf(pStr,128U,"done\n" );
-#endif
   printf("%s",str);
   RecordStringInFile_AL(str,"Event");
 }
