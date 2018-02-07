@@ -17,5 +17,18 @@ Compiling serTest:
 cd into serialTest/ and call make.
 
 
+usage:
+------
 
+just execute serTest as root:
+
+~# ./serTest
+
+
+then the program displays time and cycle count and behind every UART the nr. of milliseconds the select() call had to wait for the
+sending UART to be ready.
+
+
+TODO: 
+- add option parsing to be able to set parameters during runtime
 

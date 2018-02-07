@@ -13,60 +13,61 @@
 #include "StructTypeDef.h"
 #include "SetTimer.h"
 
-#define S4_PORT     "/dev/ttyS4"
-#define S4_BAUDRATE  B115200
-#define S4_DATABITS  8U
-#define S4_STOPBIT   1U
-#define S4_PARITY    'E'
+#define S4_PORT     	"/dev/ttyS4"
+#define S4_BAUDRATE  	B115200
+#define S4_DATABITS  	8U
+#define S4_STOPBIT   	1U
+#define S4_PARITY    	'E'
 
-#define S5_PORT     "/dev/ttyS5"
-#define S5_BAUDRATE  B115200
-#define S5_DATABITS  8U
-#define S5_STOPBIT   1U
-#define S5_PARITY    'E'
+#define S5_PORT     	"/dev/ttyS5"
+#define S5_BAUDRATE  	B115200
+#define S5_DATABITS  	8U
+#define S5_STOPBIT   	1U
+#define S5_PARITY    	'E'
 
-#define S6_PORT        "/dev/ttyS6"
-#define S6_BAUDRATE    B115200
-#define S6_DATABITS    8U
-#define S6_STOPBIT     1U
-#define S6_PARITY      'N'
+#define S6_PORT        	"/dev/ttyS6"
+#define S6_BAUDRATE    	B115200
+#define S6_DATABITS    	8U
+#define S6_STOPBIT     	1U
+#define S6_PARITY      	'N'
 
-#define S7_PORT      "/dev/ttyS7"
-#define S7_BAUDRATE  B115200
-#define S7_DATABITS  8U
-#define S7_STOPBIT   1U
-#define S7_PARITY    'E'
+#define S7_PORT      	"/dev/ttyS7"
+#define S7_BAUDRATE  	B115200
+#define S7_DATABITS  	8U
+#define S7_STOPBIT   	1U
+#define S7_PARITY    	'E'
 
-#define S8_PORT      "/dev/ttyS8"
-#define S8_BAUDRATE  B115200
-#define S8_DATABITS  8U
-#define S8_STOPBIT   1U
-#define S8_PARITY    'E'
+#define S8_PORT      	"/dev/ttyS8"
+#define S8_BAUDRATE  	B115200
+#define S8_DATABITS  	8U
+#define S8_STOPBIT   	1U
+#define S8_PARITY    	'E'
 
-#define S9_PORT      "/dev/ttyS9"
-#define S9_BAUDRATE  B115200
-#define S9_DATABITS  8U
-#define S9_STOPBIT   1U
-#define S9_PARITY    'N'
+#define S9_PORT      	"/dev/ttyS9"
+#define S9_BAUDRATE  	B115200
+#define S9_DATABITS  	8U
+#define S9_STOPBIT   	1U
+#define S9_PARITY    	'N'
 
-#define S10_PORT      "/dev/ttyS10"
-#define S10_BAUDRATE  B115200
-#define S10_DATABITS  8U
-#define S10_STOPBIT   1U
-#define S10_PARITY    'N'
+#define S10_PORT      	"/dev/ttyS10"
+#define S10_BAUDRATE  	B115200
+#define S10_DATABITS  	8U
+#define S10_STOPBIT   	1U
+#define S10_PARITY    	'N'
 
-#define S11_PORT      "/dev/ttyS11"
-#define S11_BAUDRATE  B115200
-#define S11_DATABITS  8U
-#define S11_STOPBIT   1U
-#define S11_PARITY    'N'
+#define S11_PORT      	"/dev/ttyS11"
+#define S11_BAUDRATE  	B115200
+#define S11_DATABITS  	8U
+#define S11_STOPBIT   	1U
+#define S11_PARITY    	'N'
 
 #define TX_BUFF_SIZE		1024U
 #define REC_BUFF_SIZE     	1024U
 #define NR_BYTES_TO_SEND	200
 #define NR_OF_UARTS		8
+#define TX_INTERVAL 		100	/* milliseconds */
 
-/* offset added to loop indices to display the real ttyS number as on driver registration */
+/* offset to loop indices to display real ttyS number */
 #define UART_BASE_OFFS 		4
 
 static SerialCfgStruct gSerialCfg[NR_OF_UARTS] =
@@ -119,31 +120,34 @@ int main()
   /*create log msg id */
   MsgIdCreate(&(gLogMsgId));
 
+  /* spawn the logging process */
   if(fork() == 0)
   { /* I am child process */
     pidNum = getpid();
     printf("logMsg pid %d\n",pidNum);
     usleep(100000U);
-    LogMsgProcess_AL();
+    LogMsgProcess_AL(); /* <- runs forever */
   }
 
+  /* spawn NR_OF_UARTS receiver processes */
   for(i=0U;i < NR_OF_UARTS ;i++)
   {
     if(fork() == 0)
-    { /* I am child process */
+    {
       pidNum = getpid();
       printf("S%d pid %d\n",i+UART_BASE_OFFS,pidNum);
       usleep(100000U);
-      SerialReceive_SCOM(i);
+      SerialReceive_SCOM(i); /* <- runs forever */
     }
   }
 
+  /* spawn the sending process */
   if(fork() == 0)
-  { /* I am child process */
+  {
     pidNum = getpid();
     printf("timer pid %d\n",pidNum);
     usleep(100000U);
-    TimerLoop();
+    TimerLoop(); /* <- runs forever */
   }
 
   while(1);
@@ -154,7 +158,7 @@ int main()
 
 static void SerialReceive_SCOM(uint8 index)
 {
-  uint32 ret = NO_ERROR;
+
   uint8 receiveBuf[REC_BUFF_SIZE];/*the receive buffer of ATP interface*/
   int32 val = 0;
   int8 recvFileName[128U];
@@ -170,11 +174,8 @@ static void SerialReceive_SCOM(uint8 index)
   while(1U)
   {
     val = read(gSerialCfg[index].fd,receiveBuf,sizeof(receiveBuf)); /*read data from the serial*/
-    if(val == -1)
-    {
-      ret = SERIOUS_SERCOM_READ_ERR;
-    }
-    else if(val != 0)
+
+    if(val != 0)
     {	/*YES there is data*/
       TraceIntoHexFile2_AL(receiveBuf,val,recvFileName);
     }
@@ -210,9 +211,9 @@ static void TimerLoop(void)
   uint8 i = 0U;
   uint32 count = 0;
   uint32 tickRec = 0;
-  uint32 retVal=0;
   uint32 tickCount = 0;
   uint8 buff[TX_BUFF_SIZE] = {0};
+  int8 datebuff[64];
 
   memset(buff,0,sizeof(buff));
 
@@ -222,8 +223,7 @@ static void TimerLoop(void)
   {
     tickCount = GetTickCount_ST();
 
-    /* ts@men: every 100ms */
-    if(tickCount-tickRec>=100 )
+    if(tickCount-tickRec >= TX_INTERVAL )
     {
       tickRec = tickCount;
       /* printf("tickCount %d\n",(int)tickCount); */
@@ -238,10 +238,19 @@ static void TimerLoop(void)
       buff[6]=(uint8)(tickRec>>8U);
       buff[7]=(uint8)(tickRec);
 
+      memset( datebuff, 0x0, sizeof(datebuff));
+      FormatTimeToMillisec_ST( datebuff, sizeof(datebuff));
+      fprintf( stdout, "%s %07ld ", datebuff, count );
+      fflush( stdout );
+
       for(i=0U;i < NR_OF_UARTS ;i++)
       {
-        retVal = SendDataToSerial_SCOM(i, buff, NR_BYTES_TO_SEND );
+	(void)(SendDataToSerial_SCOM(i, buff, NR_BYTES_TO_SEND ));
       }
+
+      /* closing linefeed for this cycle */
+      fprintf( stdout, "\n" );
+      fflush( stdout );
 
       if(count==0xFFFFFFFF)
       {
@@ -294,10 +303,10 @@ static int32 SerialWritableCheck(uint8 index, uint32 uSec)
   t1 = GetTickCount_ST();
   val = select(gSerialCfg[index].fd+1,NULL,&fdSet,NULL,&tim);
   t2 = GetTickCount_ST();
-
-  fprintf( stdout, "%d ", (int)(t2 - t1) );
+  /* this is supposed to have no linefeed, LF for one 100ms cycle is added in TimerLoop */
+  fprintf( stdout, "S%d: %d ", (int)( index + UART_BASE_OFFS ), (int)(t2 - t1) );
   fflush( stdout );
-  /* printf("ttyS%d=%d ", (int)index + UART_BASE_OFFS, (int)val );*/
+
   return val;
 }
 

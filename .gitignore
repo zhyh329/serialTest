@@ -1,2 +1,4 @@
 serialTest/*.o
 serialTest/serTest
+.cproject
+.project

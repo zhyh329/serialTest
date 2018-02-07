@@ -9,8 +9,8 @@ cpu {
     #        general parameters (don't modify)
     # ------------------------------------------------------------------------
     DESC_TYPE = U_INT32 0x0
-    HW_TYPE = STRING F11S
-    _WIZ_MODEL = STRING F11S
+    HW_TYPE = STRING F21P
+    _WIZ_MODEL = STRING F21P
 }
 mezz_cham_1 {
 
@@ -29,9 +29,9 @@ mezz_cham_1 {
     PCI_DEVICE_NUMBER = U_INT32 0x0
 
     # ------------------------------------------------------------------------
-    #        Chameleon BBIS Device: 
+    #        Chameleon BBIS Device:
     #            DEVICE_IDV2_X is:   ((Cham devId) << 8 | instance)
-    #        inside groups:  
+    #        inside groups:
     #            DEVICE_IDV2_X is:   ((Cham devId) << 8 | index inside group )
     # ------------------------------------------------------------------------
     DEVICE_IDV2_0 = U_INT32 0x1801
