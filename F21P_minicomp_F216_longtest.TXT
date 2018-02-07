@@ -1,0 +1,94 @@
+[tschnuer@tslinux3 ~]$
+[tschnuer@tslinux3 ~]$ ssh -X tschnuer@192.1.1.150
+Welcome to Ubuntu 14.04.1 LTS (GNU/Linux 3.13.0-32-generic i686)
+
+ * Documentation:  https://help.ubuntu.com/
+
+Last login: Tue Feb  6 18:37:31 2018 from 192.1.1.152
+tschnuer@minicomp:~$
+tschnuer@minicomp:~$ uptime
+ 09:24:00 up 14:48,  3 users,  load average: 0,17, 1,25, 1,75
+tschnuer@minicomp:~$
+tschnuer@minicomp:~$ # start some thread in background to be able to see # of serial interrupts occurred last 12 hours
+tschnuer@minicomp:~$
+tschnuer@minicomp:~$ cat /dev/ttyS4 &
+[1] 3438
+tschnuer@minicomp:~$ cat: /dev/ttyS4: Permission denied
+
+[1]+  Exit 1                  cat /dev/ttyS4
+tschnuer@minicomp:~$
+tschnuer@minicomp:~$
+tschnuer@minicomp:~$ sudo cat /dev/ttyS4 &
+[1] 3439
+tschnuer@minicomp:~$
+
+[1]+  Stopped                 sudo cat /dev/ttyS4
+tschnuer@minicomp:~$
+tschnuer@minicomp:~$ sudo su
+[sudo] password for tschnuer:
+root@minicomp:/home/tschnuer# cat /dev/ttyS4 &
+[1] 3452
+root@minicomp:/home/tschnuer# cat /proc/interrupts
+           CPU0       CPU1
+  0:         17          0   IO-APIC-edge      timer
+  8:          1          0   IO-APIC-edge      rtc0
+  9:         18          0   IO-APIC-fasteoi   acpi
+ 16:   28188578          0   IO-APIC-fasteoi   ehci_hcd:usb1, serial
+ 19:          0          0   IO-APIC-fasteoi   ata_piix
+ 21:      45986          0   IO-APIC-fasteoi   ata_piix
+ 23:      23935          0   IO-APIC-fasteoi   ehci_hcd:usb2
+ 41:     112571          0   PCI-MSI-edge      eth4-rx-0
+ 42:         34      80211   PCI-MSI-edge      eth4-tx-0
+ 43:          2          0   PCI-MSI-edge      eth4
+ 47:         23          0   PCI-MSI-edge      mei_me
+ 48:      85303          0   PCI-MSI-edge      i915
+NMI:       5258       5258   Non-maskable interrupts
+LOC:   13290018   13461085   Local timer interrupts
+SPU:          0          0   Spurious interrupts
+PMI:       5258       5258   Performance monitoring interrupts
+IWI:       3967       3062   IRQ work interrupts
+RTR:          0          0   APIC ICR read retries
+RES:    1559042    1032747   Rescheduling interrupts
+CAL:        311        276   Function call interrupts
+TLB:        140        398   TLB shootdowns
+TRM:          0          0   Thermal event interrupts
+THR:          0          0   Threshold APIC interrupts
+MCE:          0          0   Machine check exceptions
+MCP:        179        179   Machine check polls
+ERR:          0
+MIS:          0
+root@minicomp:/home/tschnuer#
+root@minicomp:/home/tschnuer# fpga_load 1a88 4d45 72 0 -t
+
+BARs of FPGA PCI device 05:14.0:
+  BAR0: 0xc0408000; size: 0x00000000, mapType: MEM;
+  BAR1: 0xc0400000; size: 0x00000000, mapType: MEM;
+  BAR2: 0x00002101; size: 0x00000000, mapType: IO;
+  BAR3: 0x00002001; size: 0x00000000, mapType: IO;
+  BAR4: 0x00000000; size: 0x00000000, mapType: unused;
+  BAR5: 0x00000000; size: 0x00000000, mapType: unused;
+
+Information about the Chameleon FPGA:
+FPGA File='F216-00IC001' table model=0x41('A') Revision 5.0 Magic 0xABCE
+List of the Chameleon units:
+Idx DevId  Module                   Grp Inst Var Rev IRQ BAR Offset     Address
+--- ------ ------------------------ --- ---- --- --- --- --- ---------- ----------
+  0 0x0018 16Z024_SRAM                0    0   1  11  63   0 0x00000000 0xc0408000
+  1 0x007d 16Z125_UART                0    0   0  21   1   0 0x00000100 0xc0408100
+  2 0x007d 16Z125_UART                0    1   0  21   2   0 0x00000110 0xc0408110
+  3 0x007d 16Z125_UART                0    2   0  21   3   0 0x00000120 0xc0408120
+  4 0x007d 16Z125_UART                0    3   0  21   4   0 0x00000130 0xc0408130
+  5 0x007d 16Z125_UART                0    4   0  21   5   0 0x00000140 0xc0408140
+  6 0x007d 16Z125_UART                0    5   0  21   6   0 0x00000150 0xc0408150
+  7 0x007d 16Z125_UART                0    6   0  21   7   0 0x00000160 0xc0408160
+  8 0x007d 16Z125_UART                0    7   0  21   8   0 0x00000170 0xc0408170
+  9 0x0022 16Z034_GPIO                0    0   0  10  63   0 0x00000180 0xc0408180
+ 10 0x0045 16Z069_RST                 0    0   0  10  63   0 0x000001a0 0xc04081a0
+ 11 0x0034 16Z052_GIRQ                0    0   0   6  63   0 0x000001c0 0xc04081c0
+ 12 0x007e 16Z126_SERFLASH            0    0   0   2  63   0 0x000001e0 0xc04081e0
+ 13 0x0018 16Z024_SRAM                0    0   1  11  63   1 0x00000000 0xc0400000
+
+ Current FPGA file/usage status: user image active.
+
+
+root@minicomp:/home/tschnuer#
