@@ -90,6 +90,7 @@
 #define NR_BYTES_TO_SEND	200
 #define NR_OF_UARTS		8
 #define TX_INTERVAL 		100	/* milliseconds */
+#define SELECT_TIMEOUT 		5000   	/* microseconds */
 
 static SerialCfgStruct gSerialCfg[NR_OF_UARTS] =
 {
@@ -213,7 +214,7 @@ static uint32 SendDataToSerial_SCOM(uint8 index, uint8 buff[],uint16 len)
   int32 val = 0;
   uint32 ret = NO_ERROR;
   /* ts@men: use 5ms instead 1ms, give the OS time for other tasks */
-  val = SerialWritableCheck(index, 5000U);
+  val = SerialWritableCheck(index, SELECT_TIMEOUT );
   if(val<=0)
   {
     ResetSerialPort(index);
