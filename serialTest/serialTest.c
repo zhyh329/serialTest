@@ -13,49 +13,73 @@
 #include "StructTypeDef.h"
 #include "SetTimer.h"
 
-#define S4_PORT     	"/dev/ttyS4"
+#if 0
+/* UART enumeration as on my F21P before setting BIOS to defaults */
+# define UART_BASE_OFFS 	4
+# define UART_1			"4"
+# define UART_2			"5"
+# define UART_3			"6"
+# define UART_4			"7"
+# define UART_5			"8"
+# define UART_6			"9"
+# define UART_7			"10"
+# define UART_8			"11"
+#else
+/* UART enumeration as on my F21P AFTER setting BIOS to defaults - one more UART shows up at boot already*/
+# define UART_BASE_OFFS 	5
+# define UART_1			"5"
+# define UART_2			"6"
+# define UART_3			"7"
+# define UART_4			"8"
+# define UART_5			"9"
+# define UART_6			"10"
+# define UART_7			"11"
+# define UART_8			"12"
+#endif
+
+#define S4_PORT     	"/dev/ttyS"UART_1
 #define S4_BAUDRATE  	B115200
 #define S4_DATABITS  	8U
 #define S4_STOPBIT   	1U
 #define S4_PARITY    	'E'
 
-#define S5_PORT     	"/dev/ttyS5"
+#define S5_PORT     	"/dev/ttyS"UART_2
 #define S5_BAUDRATE  	B115200
 #define S5_DATABITS  	8U
 #define S5_STOPBIT   	1U
 #define S5_PARITY    	'E'
 
-#define S6_PORT        	"/dev/ttyS6"
+#define S6_PORT        	"/dev/ttyS"UART_3
 #define S6_BAUDRATE    	B115200
 #define S6_DATABITS    	8U
 #define S6_STOPBIT     	1U
 #define S6_PARITY      	'N'
 
-#define S7_PORT      	"/dev/ttyS7"
+#define S7_PORT      	"/dev/ttyS"UART_4
 #define S7_BAUDRATE  	B115200
 #define S7_DATABITS  	8U
 #define S7_STOPBIT   	1U
 #define S7_PARITY    	'E'
 
-#define S8_PORT      	"/dev/ttyS8"
+#define S8_PORT      	"/dev/ttyS"UART_5
 #define S8_BAUDRATE  	B115200
 #define S8_DATABITS  	8U
 #define S8_STOPBIT   	1U
 #define S8_PARITY    	'E'
 
-#define S9_PORT      	"/dev/ttyS9"
+#define S9_PORT      	"/dev/ttyS"UART_6
 #define S9_BAUDRATE  	B115200
 #define S9_DATABITS  	8U
 #define S9_STOPBIT   	1U
 #define S9_PARITY    	'N'
 
-#define S10_PORT      	"/dev/ttyS10"
+#define S10_PORT      	"/dev/ttyS"UART_7
 #define S10_BAUDRATE  	B115200
 #define S10_DATABITS  	8U
 #define S10_STOPBIT   	1U
 #define S10_PARITY    	'N'
 
-#define S11_PORT      	"/dev/ttyS11"
+#define S11_PORT      	"/dev/ttyS"UART_8
 #define S11_BAUDRATE  	B115200
 #define S11_DATABITS  	8U
 #define S11_STOPBIT   	1U
@@ -66,9 +90,6 @@
 #define NR_BYTES_TO_SEND	200
 #define NR_OF_UARTS		8
 #define TX_INTERVAL 		100	/* milliseconds */
-
-/* offset to loop indices to display real ttyS number */
-#define UART_BASE_OFFS 		4
 
 static SerialCfgStruct gSerialCfg[NR_OF_UARTS] =
 {
@@ -107,6 +128,10 @@ int main()
 {
   uint8 i = 0U;
   pid_t pidNum = 0;
+
+  printf("octal UART test built %s %s\n", __DATE__, __TIME__ ); /* might be causing deprecated warning on newer compilers */
+  printf("==========================================\n" );
+  printf("Testing UARTs /dev/ttyS%d - /dev/ttyS%d\n\n", UART_BASE_OFFS, UART_BASE_OFFS + ( NR_OF_UARTS - 1 ) );
 
   gParentPidNum = getpid();
   printf("\nparent pid %d\n",gParentPidNum);
