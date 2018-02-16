@@ -1,13 +1,29 @@
 README for multi-UART test serTest
 ==================================
 
-This utility forks 3 threads which in parallel send to multiple UARTS
-and receives from them.
+This utility forks 3 threads which in parallel send to multiple UARTS and receives from them, at 115200 baud.
+The TimerLoop function is the sending thread in which every 100 ms 200 chars are sent on every UART.
 
-The UARTs are currently labelled and expected to be named
-/dev/ttyS4 - /dev/ttyS11 (8 UARTs).
+It is used to test simultaneous access to e.g. 16Z125 UART and debug problems in the IP Core design.
 
-To be suitable for less UARTs defines in serialTest.c must be modified.
+The UARTs are currently labeled and expected to be named /dev/ttyS4 - /dev/ttyS11 (8 UARTs). 
+Check in dmesg after boot if there is not already an onboard interface ttyS4! in that case set the 
+starting UART to ttyS5, see #if 0 statement.
+
+To be suitable for less UARTs the #define NR_OF_UARTS in serialTest.c must be modified:
+         #define NR_OF_UARTS             8
+Set e.g. to 2 to test only ttyS4, ttyS5.
+
+
+Other important defines:
+         #define NR_BYTES_TO_SEND        1000     # of chars sent every TX_INTERVAL milliseconds
+         #define TX_INTERVAL             100      milliseconds between each send cycle
+         #define SELECT_TIMEOUT          5000     microseconds as select() timeout value
+         #define FLUSH_ON_CLOSE                   if set, a tcflush is executed prior to close
+
+
+Attention: if TX_INTERVAL is less than the time it takes for NR_BYTES_TO_SEND the program will always show errors, in this case it's valid error
+because the file descriptors are definitely not ready for sending again when next write occurs.
 
 
 Compiling serTest:

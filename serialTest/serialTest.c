@@ -91,6 +91,7 @@
 #define NR_OF_UARTS		8
 #define TX_INTERVAL 		100	/* milliseconds */
 #define SELECT_TIMEOUT 		5000   	/* microseconds */
+#define FLUSH_ON_CLOSE 			/* ts@men if set, a tcflush is executed prior to close */
 
 static SerialCfgStruct gSerialCfg[NR_OF_UARTS] =
 {
@@ -132,10 +133,16 @@ int main()
 
   printf("octal UART test built %s %s\n", __DATE__, __TIME__ ); /* might be causing deprecated warning on newer compilers */
   printf("==========================================\n" );
-  printf("Testing UARTs /dev/ttyS%d - /dev/ttyS%d\n\n", UART_BASE_OFFS, UART_BASE_OFFS + ( NR_OF_UARTS - 1 ) );
+  printf("Testing UARTs /dev/ttyS%d - /dev/ttyS%d, sending %d byte each %d ms\n",
+		  UART_BASE_OFFS, UART_BASE_OFFS + ( NR_OF_UARTS - 1 ), NR_BYTES_TO_SEND, TX_INTERVAL );
+#ifdef FLUSH_ON_CLOSE
+  printf("close behaviour: FLUSH_ON_CLOSE is defined, calling tcflush() before closing\n" );
+#else
+  printf("close behaviour: tcflush() NOT called before closing\n" );
+#endif
 
   gParentPidNum = getpid();
-  printf("\nparent pid %d\n",gParentPidNum);
+  printf("parent pid %d\n",gParentPidNum);
 
   /*register Ctrl+C handle process*/
   signal(SIGINT,(void*)(CtrlCHandle_PG));
@@ -603,6 +610,12 @@ void CloseSerialPort_SCOM(void)
 
   for(i=0U;i < NR_OF_UARTS ;i++)
   {
+#ifdef FLUSH_ON_CLOSE
+    /* ts@men additionally flush the interface prior to closing... */
+    tcflush( gSerialCfg[i].fd,TCOFLUSH );
+    fsync( gSerialCfg[i].fd );
+#endif
+
     val = close(gSerialCfg[i].fd);
     if(val<0)
     {
